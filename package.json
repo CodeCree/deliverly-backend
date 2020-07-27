@@ -1,0 +1,25 @@
+{
+  "name": "deliverly-backend",
+  "version": "1.0.0",
+  "description": "Blank",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeCree/deliverly-backend.git"
+  },
+  "author": "CodeCree",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CodeCree/deliverly-backend/issues"
+  },
+  "homepage": "https://github.com/CodeCree/deliverly-backend#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.9"
+  }
+}
