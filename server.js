@@ -1,15 +1,23 @@
 // Setting up constants for libraries
-const conf = require("./config.json");
-const express = require("express"), app = express(), port = process.env.PORT || 3000;
-const bodyParser = require("body-parser");
-const { MongoClient } = require("mongodb").MongoClient;
+const express = require("express")
+const app = express();
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config();
 
-// URL Encoding just for now
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Import Routes
+const authRoute = require("./app/routes/auth");
 
-// app/routes/index.js is where all the routes are stored
-require("./app/routes")(app, {});
-app.listen(port, () => {
-    console.log(`We are live on ${port}`);
+// Connecting to MongoDB Atlas
+mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+    console.log("Connected to Mongo Atlas");
+});
+
+app.use(express.json());
+
+// Route Middlewares
+app.use("/api/user", authRoute);
+
+app.listen(3000, () => {
+    console.log("Express has been activated");
 });
