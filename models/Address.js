@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const addressSchema = new mongoose.Schema({
-
+    // Coords are numbers like -104963 in the server, on client side it willbe made into -104.963
+    coordinates: {
+        type: [Number],
+        required: true
+    },
     street: {
         type: String,
         required: true

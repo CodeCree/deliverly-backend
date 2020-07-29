@@ -1,23 +1,19 @@
-// Setting up constants for libraries
-const express = require("express")
+const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+
+// Loads environment variables
 const dotenv = require("dotenv");
 dotenv.config();
 
-// Import Routes
-const authRoute = require("./app/routes/auth");
+// Import routes
+const authRoute = require("./routes/auth");
 
-// Connecting to MongoDB Atlas
-mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
-    console.log("Connected to Mongo Atlas");
-});
+// Connect to db
+mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log("Connected to Mongo Atlas"));
 
+// Express routes & etc.
 app.use(express.json());
-
-// Route Middlewares
 app.use("/api/user", authRoute);
 
-app.listen(3000, () => {
-    console.log("Express has been activated");
-});
+app.listen(3000, () => console.log("Express has started"));
