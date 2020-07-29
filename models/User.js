@@ -13,6 +13,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         max: 1024
     },
+    operator: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     date: {
         type: Date,
         default: Date.now()
