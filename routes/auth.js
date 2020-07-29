@@ -1,37 +1,38 @@
 const router = require("express").Router();
+const bcrypt = require("bcryptjs");
 const UserModel = require("../models/User");
-const AddressModel = require("../models/Address");
-
-// Validation
-const Joi = require("@hapi/joi");
-
-const schema = Joi.object({
-    username: Joi.string().min(3).required(),
-    email: Joi.string().min(6).required().email(),
-    password: Joi.string().min(8).required(),
-    address: Joi.object().required(),
-    terms: Joi.boolean().required()
-});
+const { registerValidation } = require("../functions/validation");
 
 router.post("/register", async (req, res) => {
 
     // Post validation
-    const { error } = schema.validate(req.body);
-    if (error) return res.status(400).send(error.details[0]);
-
-    const User = new UserModel({
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password,
+    const { error } = registerValidation(req.body)
+    if (error) return res.status(400).send({
+        "success": false,
+        "error": error.details[0].message
     });
 
+    // Checking if user is already registered
+    const emailExists = await UserModel.findOne({ email: req.body.email });
+    if (emailExists) return res.status(400).send({ "success": false, "message": "Email has already been registered" })
+
+    // If all other checks are ok.. hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+    // New user model
+    const User = new UserModel({
+        email: req.body.email,
+        password: hashedPassword,
+    });
+
+    // Save + catch error
     try {
-        var saveUser = await User.save();
-        res.send(saveUser);
+        await User.save();
+        res.send({ "success": true });
     } catch (error) {
         res.status(400).send(error);
     }
-
 
 });
 
