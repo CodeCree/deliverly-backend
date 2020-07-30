@@ -3,7 +3,7 @@ A [CodeCree](https://www.codecree.co.uk) project as part of the [Knightshield Ha
 
 > **Briefing:** Create an app of any kind that utilizes the latest technolgy and has an innovative way of tracking packages and shipping!
 
-Endpoint is localhost:3000/api
+Endpoint is localhost:3000/api  
 The endpoint will **only** receive and send data in JSON formatting
 
 ## GET /ping
@@ -18,7 +18,7 @@ Checks to see if the api is online
 ```
 
 ## POST /user/register
-Registers a new user into a database
+Registers a new user into a database  
 **Auth type required: NONE**
 ##### Example json body
 ```json
@@ -46,8 +46,8 @@ In this example, the password doesn't meet the requirement if being at least 8 l
 ```
 
 ## POST /user/login
-Logs a user in if the account exists on the database
-**Auth type required: EMAIL & PASSWORD**
+Logs a user in if the account exists on the database  
+**Auth type required: EMAIL & PASSWORD**  
 **Auth location: JSON BODY**
 #### Example json body
 ```json
@@ -77,8 +77,8 @@ In this example, the password is wrong
 ```
 
 ## POST /package
-Post a new package to the server
-**Auth type required: AUTH TOKEN ANY**
+Post a new package to the server  
+**Auth type required: AUTH TOKEN ANY**  
 **Auth location: HEADER "Authorization"**
 #### Example json body
 ```json
@@ -135,8 +135,8 @@ In this example, the Google Geolocate API key is invalid
 ```
 
 ## GET /package/{code}
-Get package information
-**Auth type required: AUTH TOKEN ANY**
+Get package information  
+**Auth type required: AUTH TOKEN ANY**  
 **Auth location: HEADER "Authorization"**
 
 #### Example request
@@ -176,8 +176,8 @@ In this example, the package does not exist
 ```
 
 ## POST /warehouse
-Create a new warehouse
-**Auth type required: AUTH TOKEN OPERATOR ONLY**
+Create a new warehouse  
+**Auth type required: AUTH TOKEN OPERATOR ONLY**  
 **Auth location: HEADER "Authorization"**
 
 #### Example request
@@ -210,8 +210,8 @@ In this example, the header has an invalid token
 ```
 
 ## GET /warehouse/{uuid}
-Get warehouse information
-**Auth type required: AUTH TOKEN ANY**
+Get warehouse information  
+**Auth type required: AUTH TOKEN ANY**  
 **Auth location: HEADER "Authorization"**
 
 #### Example request
