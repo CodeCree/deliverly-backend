@@ -9,6 +9,7 @@ dotenv.config();
 // Import routes
 const defaultRoute = require("./routes/default");
 const packageRoute = require("./routes/package");
+const warehouseRoute = require("./routes/warehouse");
 const authRoute = require("./routes/auth");
 
 // Connect to db
@@ -18,6 +19,7 @@ mongoose.connect(process.env.DB_CONNECT, { useNewUrlParser: true, useUnifiedTopo
 app.use(express.json());
 app.use("/api", defaultRoute);
 app.use("/api", packageRoute);
+app.use("/api", warehouseRoute);
 app.use("/api/user", authRoute);
 
 app.listen(3000, () => console.log("Express has started"));

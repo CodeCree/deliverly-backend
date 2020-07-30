@@ -49,6 +49,21 @@ const packageInValidation = (data) => {
 
 }
 
+const warehouseInValidation = (data) => {
+
+    const schema = Joi.object({
+        name: Joi.string().required(),
+        address: Joi.object({
+            street: Joi.string().required(),
+            city: Joi.string().required(),
+            postcode: Joi.string().required()
+        })
+    });
+
+    return schema.validate(data);
+}
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.packageInValidation = packageInValidation;
+module.exports.warehouseInValidation = warehouseInValidation;

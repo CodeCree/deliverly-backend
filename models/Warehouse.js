@@ -12,9 +12,9 @@ const warehouseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    id: {
+    uuid: {
         type: String,
-        required: true
+        required: false
     }
 }, { collection: "Warehouses" });
 

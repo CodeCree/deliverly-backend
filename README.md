@@ -83,10 +83,10 @@ Post a new package to the server
 {
     "warehouse": "000001",
     "weight": "1.22",
+    "email": "john@codecree.co.uk",
     "recipient": "John Doe",
     "address": {
         "street": "10 Downing Street",
-        "town": "Westminster",
         "city": "London",
         "postcode": "SW1A 2AA"
     }
@@ -142,3 +142,8 @@ Get package information
 ```
 
 #### Expected reply
+
+## POST /warehouse
+Create a new warehouse
+**Auth type required: AUTH TOKEN OPERATOR ONLY**
+**Auth location: HEADER "Authorization"**

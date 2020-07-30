@@ -5,7 +5,7 @@ const warehouseModel = require("../models/Warehouse");
 const verify = require("../functions/verifyToken");
 const verifyOp = require("../functions/verifyTokenOp");
 const customerCodeGen = require("../functions/customerCodeGenerator");
-const geolocate = require("../functions/geolocate")
+const geolocate = require("../functions/geolocate");
 const { packageInValidation } = require("../functions/validation");
 
 router.post("/package", verify, async (req, res) => {
@@ -52,29 +52,46 @@ router.post("/package", verify, async (req, res) => {
 
         var coLat = collectResult.results[0].geometry.location.lat.toFixed(4);
         var coLong = collectResult.results[0].geometry.location.lng.toFixed(4);
-    }
 
-    // Makes a new package
-    const Package = new packageModel({
-        code: customerCode,
-        warehouse: req.body.warehouse,
-        weight: req.body.weight,
-        recipient: req.body.recipient,
-        email: req.body.email,
-        address: new addressModel({
-            coordinates: [lat, long],
-            street: req.body.address.street,
-            city: req.body.address.city,
-            postcode: req.body.address.postcode
-        }),
-        collect: new addressModel({
-            coordinates: [coLat, coLong],
-            street: req.body.collect.street,
-            city: req.body.collect.city,
-            postcode: req.body.collect.postcode
-        }),
-        premium: req.body.premium
-    });
+        // Makes a new package
+        var Package = new packageModel({
+            code: customerCode,
+            warehouse: req.body.warehouse,
+            weight: req.body.weight,
+            recipient: req.body.recipient,
+            email: req.body.email,
+            address: new addressModel({
+                coordinates: [lat, long],
+                street: req.body.address.street,
+                city: req.body.address.city,
+                postcode: req.body.address.postcode
+            }),
+            collect: new addressModel({
+                coordinates: [coLat, coLong],
+                street: req.body.collect.street,
+                city: req.body.collect.city,
+                postcode: req.body.collect.postcode
+            }),
+            premium: req.body.premium
+        });
+
+    } else {
+        // Makes a new package
+        var Package = new packageModel({
+            code: customerCode,
+            warehouse: req.body.warehouse,
+            weight: req.body.weight,
+            recipient: req.body.recipient,
+            email: req.body.email,
+            address: new addressModel({
+                coordinates: [lat, long],
+                street: req.body.address.street,
+                city: req.body.address.city,
+                postcode: req.body.address.postcode
+            }),
+            premium: req.body.premium
+        });
+    }
 
     // Save + catch error
     try {
@@ -91,10 +108,10 @@ router.get("/package/:code", verify, async (req, res) => {
     // Checking if package exists
     if (package == null) return res.status(400).send({ "success": false, "message": "Package does not exist" })
 
-    package.events.forEach(event => {
+    package.events.forEach(async event => {
 
         if (event.route) return;
-        var warehouse = await warehouseModel.findOne({ id: event.warehouse });
+        var warehouse = await warehouseModel.findOne({ uuid: event.warehouse });
         var warehouseAddress = warehouse.address.street + " " + warehouse.address.city + " " + warehouse.address.postcode;
         var warehouseResult = await geolocate(warehouseAddress);
 
@@ -123,7 +140,6 @@ router.get("/package/:code", verify, async (req, res) => {
             email: package.email,
             address: package.address,
             events: package.events
-
         }
     });
 
