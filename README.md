@@ -18,7 +18,7 @@ Checks to see if the api is online
 ```
 
 ## GET /qr-code
-Checks to see if the api is online
+Checks to see if the api is online  
 **Auth type required: NONE**
 #### Expected reply
 ```json
