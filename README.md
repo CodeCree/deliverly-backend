@@ -61,7 +61,9 @@ Logs a user in if the account exists on the database
 ```json
 {
     "success": true,
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjIxZjI3Yjk5MWU0NjUwOTQwZWFiMDkiLCJpYXQiOjE1OTYwNjIxNjJ9.t9C17-Sf_fIgNGy_PtlcHxRuqOPpaGbj8YJGKfCs-Pc"
+    "email": "op@codecree.co.uk",
+    "operator": true,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjIyMDgxYTI3MDllZDIzYjgzYWJhMmUiLCJvcGVyYXRvciI6dHJ1ZSwiaWF0IjoxNTk2MTQ4ODc3fQ.vgDnt0WkbBbEZrP5YNZTgWuqNg4ycZIIJFRXQApLBi0"
 }
 ```
 
@@ -207,3 +209,39 @@ In this example, the header has an invalid token
 }
 ```
 
+## GET /warehouse/{uuid}
+Get warehouse information
+**Auth type required: AUTH TOKEN ANY**
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+`GET localhost:3000/api/warehouse/d1a0654d-bc5d-44d2-b3f0-d8df10d8d62b`
+
+#### Expected reply
+```json
+{
+    "success": true,
+    "data": {
+        "uuid": "d1a0654d-bc5d-44d2-b3f0-d8df10d8d62b",
+        "name": "Warehouse Bravo Mark 2",
+        "address": {
+            "coordinates": [
+                51.5032,
+                -0.1281
+            ],
+            "_id": "5f2343f6966c154de8f3e79f",
+            "street": "14 Downing Street",
+            "city": "London",
+            "postcode": "SW1A 2AA"
+        }
+    }
+}
+```
+#### Error example
+In this example, the warehouse does not exist on the database
+```json
+{
+    "success": false,
+    "message": "Warehouse does not exist"
+}
+```
