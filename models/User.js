@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const addressSchema = require("./Address");
 
 const userSchema = new mongoose.Schema({
     email: {

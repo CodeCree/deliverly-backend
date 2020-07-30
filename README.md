@@ -69,3 +69,20 @@ In this example, the password is wrong
     "message": "Email or password is incorrect"
 }
 ```
+
+## POST /package
+Post a new package to the server
+#### Example json body
+```json
+{
+    "warehouse": "000001",
+    "weight": "1.22",
+    "recipient": "John Doe",
+    "address": {
+        "street": "10 Downing Street",
+        "town": "Westminster",
+        "city": "London",
+        "postcode": "SW1A 2AA"
+    }
+}
+```
