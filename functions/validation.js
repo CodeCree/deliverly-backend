@@ -34,13 +34,11 @@ const packageInValidation = (data) => {
         email: Joi.string().email().required(),
         address: Joi.object({
             street: Joi.string().required(),
-            town: Joi.string().required(),
             city: Joi.string().required(),
             postcode: Joi.string().required()
         }),
         collect: Joi.object({
             street: Joi.string().required(),
-            town: Joi.string().required(),
             city: Joi.string().required(),
             postcode: Joi.string().required()
         }),

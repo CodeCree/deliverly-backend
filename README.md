@@ -8,6 +8,7 @@ The endpoint will **only** receive and send data in JSON formatting
 
 ## GET /ping
 Checks to see if the api is online
+**Auth type required: NONE**
 #### Expected reply
 ```json
 {
@@ -18,6 +19,7 @@ Checks to see if the api is online
 
 ## POST /user/register
 Registers a new user into a database
+**Auth type required: NONE**
 ##### Example json body
 ```json
 {
@@ -45,6 +47,8 @@ In this example, the password doesn't meet the requirement if being at least 8 l
 
 ## POST /user/login
 Logs a user in if the account exists on the database
+**Auth type required: EMAIL & PASSWORD**
+**Auth location: JSON BODY**
 #### Example json body
 ```json
 {
@@ -72,6 +76,8 @@ In this example, the password is wrong
 
 ## POST /package
 Post a new package to the server
+**Auth type required: AUTH TOKEN ANY**
+**Auth location: HEADER "Authorization"**
 #### Example json body
 ```json
 {
@@ -112,7 +118,8 @@ Post a new package to the server
 ```json
 {
     "success": true,
-    "customerCode": "symptom-beneficial-penetrate"
+    "customerCode": "historian-broach-courtesan",
+    "id": "5f2328b11d4da55e54991276"
 }
 ```
 
@@ -124,3 +131,14 @@ In this example, the Google Geolocate API key is invalid
     "message": "The provided API key is invalid."
 }
 ```
+
+## GET /package/code
+Get package information
+**Auth type required: AUTH TOKEN ANY**
+**Auth location: HEADER "Authorization"**
+
+#### Example json body
+```json
+```
+
+#### Expected reply

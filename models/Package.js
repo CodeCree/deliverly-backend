@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const addressSchema = require("./Address");
 var address = addressSchema.schema;
+const eventSchema = require("./Event");
+var event = eventSchema.schema;
+
 
 const packageSchema = new mongoose.Schema({
     code: {
@@ -23,7 +26,7 @@ const packageSchema = new mongoose.Schema({
         required: false
     },
     weight: {
-        // In kilograms
+        // In grams
         type: Number,
         required: false
     },
@@ -45,6 +48,10 @@ const packageSchema = new mongoose.Schema({
     },
     premium: {
         type: Date,
+        required: false
+    },
+    events: {
+        type: [event],
         required: false
     }
 }, { collection: "Packages" });
