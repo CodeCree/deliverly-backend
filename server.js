@@ -10,6 +10,7 @@ dotenv.config();
 const defaultRoute = require("./routes/default");
 const packageRoute = require("./routes/package");
 const warehouseRoute = require("./routes/warehouse");
+const qrRoute = require("./routes/qr");
 const authRoute = require("./routes/auth");
 
 // Connect to db
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api", defaultRoute);
 app.use("/api", packageRoute);
 app.use("/api", warehouseRoute);
+app.use("/api", qrRoute);
 app.use("/api/user", authRoute);
 
 app.listen(3000, () => console.log("Express has started"));

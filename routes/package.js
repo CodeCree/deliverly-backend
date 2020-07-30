@@ -129,8 +129,6 @@ router.get("/package/:code", verify, async (req, res) => {
 
     });
 
-    console.log(package.events);
-
     res.send({
         "success": true,
         "data": {

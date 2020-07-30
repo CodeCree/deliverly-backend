@@ -17,6 +17,22 @@ Checks to see if the api is online
 }
 ```
 
+## GET /qr-code
+Checks to see if the api is online
+**Auth type required: NONE**
+#### Expected reply
+```json
+{
+    "success": true,
+    "data": [
+        "2d946ef3-9c4d-4229-aaea-5cf54b1e1727",
+        "13c58d87-809f-4ce5-b70b-4a32356c68c4",
+        "bd1e27c6-8bdc-43c9-a522-79e49f055793",
+        // and then 12 more of these
+    ]
+}
+```
+
 ## POST /user/register
 Registers a new user into a database  
 **Auth type required: NONE**
