@@ -8,7 +8,7 @@ The endpoint will **only** receive and send data in JSON formatting
 
 ## GET /ping
 Checks to see if the api is online
-#### Expected output
+#### Expected reply
 ```json
 {
     "success": true,
@@ -27,7 +27,7 @@ Registers a new user into a database
 }
 ```
 
-#### Expected output
+#### Expected reply
 ```json
 {
     "success": true
@@ -53,7 +53,7 @@ Logs a user in if the account exists on the database
 }
 ```
 
-#### Expected output
+#### Expected reply
 ```json
 {
     "success": true,
@@ -84,5 +84,25 @@ Post a new package to the server
         "city": "London",
         "postcode": "SW1A 2AA"
     }
+}
+```
+#### Sending a premium package
+
+
+
+#### Expected reply
+```json
+{
+    "success": true,
+    "customerCode": "symptom-beneficial-penetrate"
+}
+```
+
+#### Error example
+In this example, the Google Geolocate API key is invalid
+```json
+{
+    "success": false,
+    "message": "The provided API key is invalid."
 }
 ```

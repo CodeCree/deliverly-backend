@@ -27,15 +27,24 @@ const loginValidation = (data) => {
 const packageInValidation = (data) => {
 
     const schema = Joi.object({
-        warehouse: Joi.string().required(),
-        weight: Joi.number().required(),
+        warehouse: Joi.string(),
+        route: Joi.string(),
+        weight: Joi.number(),
         recipient: Joi.string().required(),
+        email: Joi.string().email().required(),
         address: Joi.object({
             street: Joi.string().required(),
-            town: Joi.string(),
+            town: Joi.string().required(),
             city: Joi.string().required(),
             postcode: Joi.string().required()
-        })
+        }),
+        collect: Joi.object({
+            street: Joi.string().required(),
+            town: Joi.string().required(),
+            city: Joi.string().required(),
+            postcode: Joi.string().required()
+        }),
+        premium: Joi.date()
     });
 
     return schema.validate(data);

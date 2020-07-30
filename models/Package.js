@@ -3,7 +3,7 @@ const addressSchema = require("./Address");
 var address = addressSchema.schema;
 
 const packageSchema = new mongoose.Schema({
-    customerCode: {
+    code: {
         type: String,
         required: true
     },
@@ -16,7 +16,11 @@ const packageSchema = new mongoose.Schema({
     },
     warehouse: {
         type: String,
-        required: true
+        required: false
+    },
+    route: {
+        type: String,
+        required: false
     },
     weight: {
         // In kilograms
@@ -27,9 +31,21 @@ const packageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        required: true
+    },
     address: {
         type: address,
         required: true
+    },
+    collect: {
+        type: address,
+        required: false
+    },
+    premium: {
+        type: Date,
+        required: false
     }
 }, { collection: "Packages" });
 
