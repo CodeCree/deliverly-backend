@@ -38,6 +38,23 @@ router.post("/package", verify, async (req, res) => {
     var lat = result.results[0].geometry.location.lat.toFixed(4);
     var long = result.results[0].geometry.location.lng.toFixed(4);
 
+    // If its a collection
+    if (req.body.collect) {
+        var collectString = req.body.collect.street + " " + req.body.collect.town + " " + req.body.collect.city + " " + req.body.collect.postcode;
+        var collectResult = await geolocate(addressString);
+
+        if (collectResult.status != "OK") {
+            return res.status(401).send({
+                "success": false,
+                "message": result.error_message
+            })
+        }
+
+        var coLat = collectResult.results[0].geometry.location.lat.toFixed(4);
+        var coLong = collectResult.results[0].geometry.location.lng.toFixed(4);
+    }
+
+
     const Package = new packageModel({
         code: customerCode,
         warehouse: req.body.warehouse,
@@ -52,7 +69,11 @@ router.post("/package", verify, async (req, res) => {
             postcode: req.body.address.postcode
         }),
         collect: new addressModel({
-
+            coordinates: [coLat, coLong],
+            street: req.body.collect.street,
+            town: req.body.collect.town,
+            city: req.body.collect.city,
+            postcode: req.body.collect.postcode
         }),
         premium: req.body.premium
     });

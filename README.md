@@ -87,7 +87,25 @@ Post a new package to the server
 }
 ```
 #### Sending a premium package
-
+```json
+{
+    "recipient": "John Doe",
+    "email": "john@codecree.co.uk",
+    "address": {
+        "street": "10 Downing Street",
+        "town": "Westminster",
+        "city": "London",
+        "postcode": "SW1A 2AA"
+    },
+    "collect": {
+        "street": "Buckingham Palace",
+        "town": "Westminster",
+        "city": "London",
+        "postcode": "SW1A 1AA"
+    },
+    "premium": "1596139634268"
+}
+```
 
 
 #### Expected reply
