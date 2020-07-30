@@ -61,7 +61,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ _id: user._id, operator: user.operator }, process.env.TOKEN_SECRET);
 
     // Returns token on successful login
-    res.send({ "success": true, "token": token });
+    res.send({ "success": true, "email": user.email, "operator": user.operator, "token": token });
 
 })
 

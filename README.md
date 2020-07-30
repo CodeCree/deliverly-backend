@@ -132,18 +132,78 @@ In this example, the Google Geolocate API key is invalid
 }
 ```
 
-## GET /package/code
+## GET /package/{code}
 Get package information
 **Auth type required: AUTH TOKEN ANY**
 **Auth location: HEADER "Authorization"**
 
-#### Example json body
-```json
-```
+#### Example request
+`GET localhost:3000/api/package/stop-amble-oviparous`
 
 #### Expected reply
+```json
+{
+    "success": true,
+    "data": {
+        "code": "stop-amble-oviparous",
+        "weight": 1.22,
+        "recipient": "John Doe",
+        "email": "john@codecree.co.uk",
+        "address": {
+            "coordinates": [
+                51.5034,
+                -0.1276
+            ],
+            "_id": "5f234d15f9424b3c403e23ab",
+            "street": "10 Downing Street",
+            "city": "London",
+            "postcode": "SW1A 2AA"
+        },
+        "events": []
+    }
+}
+```
+
+#### Error example
+In this example, the package does not exist
+```json
+{
+    "success": false,
+    "message": "Package does not exist"
+}
+```
 
 ## POST /warehouse
 Create a new warehouse
 **Auth type required: AUTH TOKEN OPERATOR ONLY**
 **Auth location: HEADER "Authorization"**
+
+#### Example request
+```json
+{
+    "name": "Warehouse Bravo Mark 2",
+    "address": {
+        "street": "14 Downing Street",
+        "city": "London",
+        "postcode": "SW1A 2AA"
+    }
+}
+```
+
+#### Expected reply
+```json
+{
+    "success": true,
+    "id": "269bda92-d98b-4a8c-a1ed-6d5f658831b5"
+}
+```
+
+#### Error example
+In this example, the header has an invalid token
+```json
+{
+    "success": false,
+    "message": "Invalid token"
+}
+```
+
