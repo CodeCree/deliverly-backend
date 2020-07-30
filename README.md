@@ -28,7 +28,7 @@ Checks to see if the api is online
         "2d946ef3-9c4d-4229-aaea-5cf54b1e1727",
         "13c58d87-809f-4ce5-b70b-4a32356c68c4",
         "bd1e27c6-8bdc-43c9-a522-79e49f055793",
-        // and then 12 more of these
+        "and 12 more of these"
     ]
 }
 ```
