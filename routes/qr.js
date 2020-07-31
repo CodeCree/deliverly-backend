@@ -6,7 +6,7 @@ router.get("/qr-code", verify, async (req, res) => {
 
     var qrs = [];
     for (i = 0; i < 15; i++) {
-        qrs.push("del" + uuidv4().split("-").join(""));
+        qrs.push("de" + uuidv4().split("-").join(""));
     }
     res.send({
         "success": true,

@@ -44,10 +44,21 @@ router.post("/warehouse", verifyOp, async (req, res) => {
 
     try {
         await Warehouse.save();
-        res.send({ "success": true, "id": Warehouse.uuid });
+        res.send({ "success": true, "id": Warehouse.uuid, "data":  await warehouseModel.find({})});
     } catch (error) {
         res.status(400).send(error);
     }
+
+});
+
+router.get("/warehouses", verify, async (req, res) => {
+
+    var warehouses = await warehouseModel.find({});
+    console.log(warehouses);
+    res.send({
+        "success": true,
+        "data": warehouses
+    })
 
 });
 
@@ -67,6 +78,6 @@ router.get("/warehouse/:uuid", verify, async (req, res) => {
     });
 
 
-})
+});
 
 module.exports = router;

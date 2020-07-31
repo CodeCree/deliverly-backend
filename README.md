@@ -237,10 +237,29 @@ Create a new warehouse
 ```
 
 #### Expected reply
+The *data* is the new list of warehouses
 ```json
 {
     "success": true,
-    "id": "269bda92-d98b-4a8c-a1ed-6d5f658831b5"
+    "id": "269bda92-d98b-4a8c-a1ed-6d5f658831b5",
+    "data": [
+        {
+            "_id": "5f2343f6966c154de8f3e7a0",
+            "uuid": "d1a0654d-bc5d-44d2-b3f0-d8df10d8d62b",
+            "name": "Warehouse Bravo Mark 2",
+            "address": {
+                "coordinates": [
+                    51.5032,
+                    -0.1281
+                ],
+                "_id": "5f2343f6966c154de8f3e79f",
+                "street": "14 Downing Street",
+                "city": "London",
+                "postcode": "SW1A 2AA"
+            },
+            "__v": 0
+        }
+    ]
 }
 ```
 
