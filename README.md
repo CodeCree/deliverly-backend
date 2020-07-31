@@ -122,6 +122,37 @@ In this example, the token is invalid
 }
 ```
 
+## GET /user
+Gets a list of all none operator users  
+**Auth type required: AUTH TOKEN OPERATOR ONLY**  
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+`localhost:3000/api/user`
+
+#### Expected reply
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "operator": false,
+            "_id": "5f23f6cbf0e0e028c074588d",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "johndoe@codecree.co.uk"
+        },
+        {
+            "operator": false,
+            "_id": "5f240ad1b058dd2fdb194e30",
+            "firstName": "Romeo",
+            "lastName": "Montague",
+            "email": "romeo@codecree.co.uk"
+        }
+    ]
+}
+```
+
 ## POST /package
 Post a new package to the server  
 **Auth type required: AUTH TOKEN ANY**  

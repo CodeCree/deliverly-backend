@@ -85,7 +85,16 @@ router.get("/me", verify, async (req, res) => {
 
 })
 
-router.get("")
+router.get("", verifyOp, async (req, res) => {
+
+    var users = await UserModel.find({operator: false}).select("_id firstName lastName email operator");
+
+    res.send({
+        "success": true,
+        "data": users
+    });
+
+})
 
 
 module.exports = router;
