@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const breadcrumbSchema = require("./Package");
+const breadcrumbSchema = require("./Breadcrumb");
 var breadcrumb = breadcrumbSchema.schema;
 
 const routeSchema = new mongoose.Schema({

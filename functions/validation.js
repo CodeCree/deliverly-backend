@@ -86,6 +86,17 @@ const routeInValidation = (data) => {
 
 }
 
+const breadcrumbValidation = (data) => {
+
+    const schema = Joi.object({
+        latitude: Joi.number().required().min(-90).max(90),
+        longitude: Joi.number().required().min(-180).max(80),
+    });
+
+    return schema.validate(data);
+
+}
+
 
 module.exports.loginValidation = loginValidation;
 module.exports.userValidation = userValidation;
@@ -93,3 +104,4 @@ module.exports.userPasswordValidation = userPasswordValidation;
 module.exports.packageInValidation = packageInValidation;
 module.exports.warehouseInValidation = warehouseInValidation;
 module.exports.routeInValidation = routeInValidation;
+module.exports.breadcrumbValidation = breadcrumbValidation;

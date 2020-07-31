@@ -5,8 +5,9 @@ const routeModel = require("../models/Route");
 const warehouseModel = require("../models/Warehouse");
 const packageModel = require("../models/Package");
 const eventModel = require("../models/Event");
+const BreadcrumbModel = require("../models/Breadcrumb");
 const verify = require("../functions/verifyToken");
-const { routeInValidation } = require("../functions/validation");
+const { routeInValidation, breadcrumbValidation } = require("../functions/validation");
 const verifyOp = require("../functions/verifyOperator");
 const { route } = require("./auth");
 
@@ -87,6 +88,48 @@ router.post("/route/:route/end", verify, async (req, res) => {
     if (req.user.id != route.userId) return res.status(400).send({success: false, error: 'Invalid route'});
     if (route.endedAt) return res.status(400).send({success: false, error: 'Already ended'});
     route.endedAt = Date.now();
+
+    await route.save();
+
+    //Add all packages to end warehouse
+    for (let packageId of route.packages) {
+        let package = await packageModel.findOne({_id: packageId});
+        if (!package) continue;
+
+        if (package.events[package.events.length-1].route == route._id || package.events.length === 0) {
+            package.events.push(new eventModel({
+                type: 'warehouse',
+                warehouse: route.endWarehouse,
+                at: Date.now()
+            }));
+            await package.save();
+        }
+    }
+
+    res.send({
+        "success": true,
+        "data": route
+    })
+});
+router.post("/route/:route/track", verify, async (req, res) => {
+    const { error } = breadcrumbValidation(req.body);
+    if (error) return res.status(400).send({
+        "success": false,
+        "error": error.details[0].message
+    });
+
+    if (!req.params.route) return res.status(400).send({success: false, error: 'Invalid route'});
+    var route = await routeModel.findOne({_id: req.params.route});
+    if (!route) return res.status(400).send({success: false, error: 'Invalid route'});
+
+    if (req.user.id != route.userId) return res.status(400).send({success: false, error: 'Invalid route'});
+    if (!route.startedAt) return res.status(400).send({success: false, error: 'Route not started'});
+    if (route.endedAt) return res.status(400).send({success: false, error: 'Route ended'});
+    
+    route.tracking.push(new BreadcrumbModel({
+        at: Date.now(),
+        location: [req.body.latitude.toFixed(4), req.body.longitude.toFixed(4)]
+    }));
 
     await route.save();
 
