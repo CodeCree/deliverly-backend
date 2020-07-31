@@ -5,7 +5,7 @@ const routeModel = require("../models/Route");
 const warehouseModel = require("../models/Warehouse");
 const verify = require("../functions/verifyToken");
 const { routeInValidation } = require("../functions/validation");
-const verifyOp = require("../functions/verifyTokenOp");
+const verifyOp = require("../functions/verifyOperator");
 
 // Makes a new route
 router.post("/route", verify, async (req, res) => {
@@ -39,7 +39,7 @@ router.post("/route", verify, async (req, res) => {
 
 });
 
-router.get("/routes/all", verifyOp, async (req, res) => {
+router.get("/routes/all", verify, verifyOp, async (req, res) => {
 
     var routes = await routeModel.find({});
     res.send({
