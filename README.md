@@ -272,6 +272,55 @@ In this example, the header has an invalid token
 }
 ```
 
+## GET /warehouses
+Get all the warehouse information  
+**Auth type required: AUTH TOKEN ANY**  
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+`GET localhost:3000/api/warehouses`
+
+#### Expected Reply
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "_id": "5f2343f6966c154de8f3e7a0",
+            "uuid": "d1a0654d-bc5d-44d2-b3f0-d8df10d8d62b",
+            "name": "Warehouse Bravo Mark 2",
+            "address": {
+                "coordinates": [
+                    51.5032,
+                    -0.1281
+                ],
+                "_id": "5f2343f6966c154de8f3e79f",
+                "street": "14 Downing Street",
+                "city": "London",
+                "postcode": "SW1A 2AA"
+            },
+            "__v": 0
+        },
+        {
+            "_id": "5f234d87f9424b3c403e23b0",
+            "uuid": "269bda92-d98b-4a8c-a1ed-6d5f658831b5",
+            "name": "Amazing warehouse v3",
+            "address": {
+                "coordinates": [
+                    51.5032,
+                    -0.1281
+                ],
+                "_id": "5f234d87f9424b3c403e23af",
+                "street": "14 Downing Street",
+                "city": "London",
+                "postcode": "SW1A 2AA"
+            },
+            "__v": 0
+        }
+    ]
+}
+```
+
 ## GET /warehouse/{uuid}
 Get warehouse information  
 **Auth type required: AUTH TOKEN ANY**  
