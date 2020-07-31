@@ -154,19 +154,11 @@ router.put("/me", verify, async (req, res) => {
         // finds the user from the token
         var user = await userModel.find({ _id: verified._id })
         // If the user exists, continue
-        if (user) continue;
+        if (user) { continue } else { res.status(404).send({ "success": false, "error": "That user does not exist" }); }
     } catch (e) {
         // If jwt cant verify token
         res.status(400).send({ "success": false, "error": "Invalid token" });
     }
-
-
-    //Check user exists
-    var user = await UserModel.findOne({ _id: req.params.id });
-    if (!user) return res.status(400).send({
-        "success": false,
-        "error": 'User does not exist'
-    });
 
     //Validation
     if (req.body.password) {
