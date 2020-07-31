@@ -24,6 +24,6 @@ app.use("/api", packageRoute);
 app.use("/api", warehouseRoute);
 app.use("/api", routeRoute);
 app.use("/api", qrRoute);
-app.use("/api/user", authRoute);
+app.use("/api/users", authRoute);
 
 app.listen(3000, () => console.log("Express has started"));

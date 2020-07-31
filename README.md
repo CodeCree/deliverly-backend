@@ -33,7 +33,7 @@ Checks to see if the api is online
 }
 ```
 
-## POST /user/register
+## POST /users/register
 Registers a new user into a database  
 **Auth type required: AUTH TOKEN OPERATOR ONLY**  
 **Auth location: HEADER "Authorization"**
@@ -63,7 +63,7 @@ In this example, the password doesn't meet the requirement if being at least 8 l
 }
 ```
 
-## POST /user/login
+## POST /users/login
 Logs a user in if the account exists on the database  
 **Auth type required: EMAIL & PASSWORD**  
 **Auth location: JSON BODY**
@@ -94,7 +94,7 @@ In this example, the password is wrong
 }
 ```
 
-## GET /me
+## GET /users/me
 Checks to make sure a user is logged in  
 **Auth type required: AUTH TOKEN ANY**  
 **Auth location: HEADER "Authorization"**
@@ -122,7 +122,7 @@ In this example, the token is invalid
 }
 ```
 
-## GET /user
+## GET /users
 Gets a list of all none operator users  
 **Auth type required: AUTH TOKEN OPERATOR ONLY**  
 **Auth location: HEADER "Authorization"**
