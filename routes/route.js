@@ -44,14 +44,11 @@ router.post("/route", verify, async (req, res) => {
 });
 
 router.get("/routes/all", verify, verifyOp, async (req, res) => {
-
-    var routes = await routeModel.find({});
+    var routes = await routeModel.find();
     res.send({
         "success": true,
         "data": routes
     })
-
-
 })
 
 router.get("/routes", verify, async (req, res) => {
