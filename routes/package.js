@@ -3,7 +3,6 @@ const packageModel = require("../models/Package");
 const addressModel = require("../models/Address");
 const warehouseModel = require("../models/Warehouse");
 const verify = require("../functions/verifyToken");
-const verifyOp = require("../functions/verifyTokenOp");
 const customerCodeGen = require("../functions/customerCodeGenerator");
 const geolocate = require("../functions/geolocate");
 const { packageInValidation } = require("../functions/validation");

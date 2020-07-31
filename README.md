@@ -289,3 +289,31 @@ In this example, the warehouse does not exist on the database
     "message": "Warehouse does not exist"
 }
 ```
+
+## POST /route
+Creates a new route  
+**Auth type required: AUTH TOKEN ANY**  
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+```json
+{
+    "endWarehouse": "d1a0654d-bc5d-44d2-b3f0-d8df10d8d62b"
+}
+```
+
+#### Expected reply
+```json
+{
+    "success": true
+}
+```
+
+#### Error example
+In this example, the warehouse does not exist
+```json
+{
+    "success": false,
+    "error": "Warehouse does not exist"
+}
+```

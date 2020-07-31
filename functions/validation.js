@@ -17,7 +17,7 @@ const registerValidation = (data) => {
 const loginValidation = (data) => {
 
     const schema = Joi.object({
-        email: Joi.string().min(6).required().email(),
+        email: Joi.string().required().email(),
         password: Joi.string().min(8).required()
     });
 
@@ -65,6 +65,12 @@ const warehouseInValidation = (data) => {
 
 const routeInValidation = (data) => {
 
+    const schema = Joi.object({
+        endWarehouse: Joi.string().required(),
+    });
+
+    return schema.validate(data);
+
 }
 
 
@@ -72,3 +78,4 @@ module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.packageInValidation = packageInValidation;
 module.exports.warehouseInValidation = warehouseInValidation;
+module.exports.routeInValidation = routeInValidation;
