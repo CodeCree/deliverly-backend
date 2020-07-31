@@ -16,7 +16,6 @@ module.exports = async function (req, res, next) {
         if (!user) return res.status(400).send({ "success": false, "message": "Invalid token" });
 
         req.user = user;
-        console.log(user);
         next();
 
     } catch (err) {
