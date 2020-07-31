@@ -26,33 +26,27 @@ router.post("/package", verify, async (req, res) => {
     // Makes the address based on input parameters
     var addressString = req.body.address.street + " " + req.body.address.city + " " + req.body.address.postcode;
     // Using googles geolocate api
-    const result = await geolocate(addressString);
+    const coordinates = await geolocate(addressString);
 
     // Makesure there is no errors
-    if (result.status != "OK") {
-        return res.status(401).send({
+    if (!coordinates) {
+        return res.status(400).send({
             "success": false,
             "error": result.error_message
         })
     }
 
-    var lat = result.results[0].geometry.location.lat.toFixed(4);
-    var long = result.results[0].geometry.location.lng.toFixed(4);
-
     // If its a collection
     if (req.body.collect) {
         var collectString = req.body.collect.street + " " + req.body.collect.city + " " + req.body.collect.postcode;
-        var collectResult = await geolocate(collectString);
+        var collectCoordinates = await geolocate(collectString);
 
-        if (collectResult.status != "OK") {
-            return res.status(401).send({
+        if (!collectCoordinates) {
+            return res.status(400).send({
                 "success": false,
                 "error": result.error_message
             })
         }
-
-        var coLat = collectResult.results[0].geometry.location.lat.toFixed(4);
-        var coLong = collectResult.results[0].geometry.location.lng.toFixed(4);
 
         // Makes a new package
         var Package = new packageModel({
@@ -62,13 +56,13 @@ router.post("/package", verify, async (req, res) => {
             recipient: req.body.recipient,
             email: req.body.email,
             address: new addressModel({
-                coordinates: [lat, long],
+                coordinates: coordinates,
                 street: req.body.address.street,
                 city: req.body.address.city,
                 postcode: req.body.address.postcode
             }),
             collect: new addressModel({
-                coordinates: [coLat, coLong],
+                coordinates: collectCoordinates,
                 street: req.body.collect.street,
                 city: req.body.collect.city,
                 postcode: req.body.collect.postcode
@@ -143,21 +137,10 @@ router.get("/package/:code", async (req, res) => {
 
         if (event.route) return;
         var warehouse = await warehouseModel.findOne({ uuid: event.warehouse });
-        var warehouseAddress = warehouse.address.street + " " + warehouse.address.city + " " + warehouse.address.postcode;
-        var warehouseResult = await geolocate(warehouseAddress);
+        if (!warehouse) return;
 
-        // Makesure there is no errors
-        if (warehouseResult.status != "OK") {
-            return res.status(401).send({
-                "success": false,
-                "error": result.error_message
-            })
-        }
-
-        event.location.lat = warehouseResult.results[0].geometry.location.lat.toFixed(4);
-        event.location.long = warehouseResult.results[0].geometry.location.lng.toFixed(4);
-
-
+        event.location.lat = warehouse.address.coordinates[0];
+        event.location.long = warehouse.address.cordinates[1];
     });
 
     res.send({
