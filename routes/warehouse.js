@@ -2,7 +2,7 @@ const router = require("express").Router();
 const addressModel = require("../models/Address");
 const warehouseModel = require("../models/Warehouse");
 const verify = require("../functions/verifyToken");
-const verifyOp = require("../functions/verifyTokenOp");
+const verifyOp = require("../functions/verifyOperator");
 const geolocate = require("../functions/geolocate");
 const { warehouseInValidation } = require("../functions/validation");
 const { v4: uuidv4 } = require('uuid');
@@ -21,7 +21,7 @@ function formatWarehouseJson(warehouse) {
     }
 }
 
-router.post("/warehouse", verifyOp, async (req, res) => {
+router.post("/warehouse", verify, verifyOp, async (req, res) => {
     const { error } = warehouseInValidation(req.body);
     if (error) return res.status(400).send({
         "success": false,
@@ -54,7 +54,8 @@ router.post("/warehouse", verifyOp, async (req, res) => {
 
     try {
         await Warehouse.save();
-        res.send({ "success": true, "id": Warehouse.uuid, "data":  await warehouseModel.find({})});
+        var warehouses = await warehouseModel.find().sort({ name: 1});
+        res.send({ "success": true, "id": Warehouse.uuid, "data": warehouses.map(warehouse => formatWarehouseJson(warehouse))});
     } catch (error) {
         res.status(400).send(error);
     }
@@ -71,7 +72,7 @@ router.get("/warehouses", verify, async (req, res) => {
 
 });
 
-router.put("/warehouse/:uuid", verifyOp, async (req, res) => {
+router.put("/warehouse/:uuid", verify, verifyOp, async (req, res) => {
     var warehouse = await warehouseModel.findOne({ uuid: req.params.uuid });
     if (!warehouse) return res.status(400).send({ "success": false, "error": "Warehouse does not exist" })
 
@@ -114,19 +115,6 @@ router.put("/warehouse/:uuid", verifyOp, async (req, res) => {
             "error": "An error occured"
         })
     }
-
-});
-
-router.get("/warehouse/:uuid", verify, async (req, res) => {
-
-    var warehouse = await warehouseModel.findOne({ uuid: req.params.uuid });
-    if (!warehouse) return res.status(400).send({ "success": false, "error": "Warehouse does not exist" })
-
-    res.send({
-        "success": true,
-        "data": formatWarehouseJson(warehouse)
-    });
-
 
 });
 

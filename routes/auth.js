@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const verifyOp = require("../functions/verifyTokenOp");
+const verifyOp = require("../functions/verifyOperator");
 const UserModel = require("../models/User");
 const { loginValidation, userPasswordValidation, userValidation } = require("../functions/validation");
 const verify = require("../functions/verifyToken");
@@ -17,7 +17,7 @@ function formatUserJson(user) {
     }
 }
 
-router.post("", verifyOp, async (req, res) => {
+router.post("", verify, verifyOp, async (req, res) => {
 
     // Post validation
     const { error } = userPasswordValidation(req.body)
@@ -43,11 +43,10 @@ router.post("", verifyOp, async (req, res) => {
         operator: req.body.operator
     });
 
-    var users = await UserModel.find().sort({ email: 1 });
-
     // Save + catch error
     try {
         await User.save();
+        var users = await UserModel.find().sort({ email: 1 });
         res.send({ "success": true, "id": User._id, "data": users.map(user => formatUserJson(user)) });
     } catch (error) {
         res.status(400).send(error);
@@ -56,7 +55,7 @@ router.post("", verifyOp, async (req, res) => {
 });
 
 //Update a user
-router.put("/:id", verifyOp, async (req, res) => {
+router.put("/:id", verify, verifyOp, async (req, res) => {
     //Check user exists
     var user = await UserModel.findOne({ _id: req.params.id });
     if (!user) return res.status(400).send({
@@ -82,7 +81,10 @@ router.put("/:id", verifyOp, async (req, res) => {
     
     //Check email
     const emailExists = await UserModel.findOne({ email: req.body.email, _id: { $ne: user._id }});
-    if (emailExists) return res.status(400).send({ "success": false, "error": "Email has already been registered" })
+    if (emailExists) return res.status(400).send({ "success": false, "error": "Email has already been registered" });
+
+    //Check op if same user
+    if (req.user._id === user._id && !req.body.operator) return res.status(400).send({ "success": false, "error": "You cannot demote yourself" });
 
     //Password validation
     if (req.body.password) {
@@ -95,11 +97,10 @@ router.put("/:id", verifyOp, async (req, res) => {
     user.email = req.body.email;
     user.operator = req.body.operator;
 
-    var users = await UserModel.find().sort({ email: 1 });
-
     // Save + catch error
     try {
         await user.save();
+        var users = await UserModel.find().sort({ email: 1 });
         res.send({ "success": true, "data": users.map(user => formatUserJson(user)) });
     } catch (error) {
         res.status(400).send(error);
@@ -126,7 +127,7 @@ router.post("/login", async (req, res) => {
     if (!validPass) return res.status(400).send({ "success": false, "error": "Email or password is incorrect" });
 
     // Create and assign new jsonwebtoken
-    const token = jwt.sign({ _id: user._id, operator: user.operator }, process.env.TOKEN_SECRET);
+    const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET);
 
     let jsonUser = formatUserJson(user);
     jsonUser.token = token;
@@ -138,16 +139,13 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/me", verify, async (req, res) => {
-    var token = req.header("Authorization");
-    var decode = jwt.decode(token);
-    var user = await UserModel.findOne({ _id: decode._id });
     res.send({
         "success": true,
-        "data": formatUserJson(user)
+        "data": formatUserJson(req.user)
     });
 });
 
-router.get("", verifyOp, async (req, res) => {
+router.get("", verify, verifyOp, async (req, res) => {
     var users = await UserModel.find().sort({ email: 1 });
 
     res.send({
