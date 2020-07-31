@@ -1,14 +1,25 @@
 // Validation
 const Joi = require("@hapi/joi");
 
-// Register validation
-const registerValidation = (data) => {
+// User validation
+const userValidation = (data) => {
+    const schema = Joi.object({
+        firstName: Joi.string().required(),
+        lastName: Joi.string().required(),
+        email: Joi.string().min(6).required().email(),
+        operator: Joi.boolean(),
+    });
+
+    return schema.validate(data);
+}
+const userPasswordValidation = (data) => {
 
     const schema = Joi.object({
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
         email: Joi.string().min(6).required().email(),
-        password: Joi.string().min(8).required()
+        password: Joi.string().min(8).required(),
+        operator: Joi.boolean(),
     });
 
     return schema.validate(data);
@@ -18,8 +29,8 @@ const registerValidation = (data) => {
 const loginValidation = (data) => {
 
     const schema = Joi.object({
-        email: Joi.string().required().email(),
-        password: Joi.string().min(8).required()
+        email: Joi.string().required(),
+        password: Joi.string().required()
     });
 
     return schema.validate(data);
@@ -75,8 +86,9 @@ const routeInValidation = (data) => {
 }
 
 
-module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
+module.exports.userValidation = userValidation;
+module.exports.userPasswordValidation = userPasswordValidation;
 module.exports.packageInValidation = packageInValidation;
 module.exports.warehouseInValidation = warehouseInValidation;
 module.exports.routeInValidation = routeInValidation;
