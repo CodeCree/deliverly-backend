@@ -37,7 +37,7 @@ router.post("/warehouse", verifyOp, async (req, res) => {
     if (!coordinates) {
         return res.status(400).send({
             "success": false,
-            "message": "Invalid address"
+            "error": "Invalid address"
         })
     }
 
@@ -90,7 +90,7 @@ router.put("/warehouse/:uuid", verifyOp, async (req, res) => {
     if (!coordinates) {
         return res.status(400).send({
             "success": false,
-            "message": "Invalid address"
+            "error": "Invalid address"
         })
     }
 
