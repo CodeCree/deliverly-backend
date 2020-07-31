@@ -10,9 +10,9 @@ const geolocate = require("../functions/geolocate");
 const { packageInValidation } = require("../functions/validation");
 const userModel = require("../models/User");
 const eventModel = require("../models/Event");
+const routeModel = require("../models/Route");
 
 router.post("/package", verify, async (req, res) => {
-
     // Making sure there is nothing wring withthe request
     const { error } = packageInValidation(req.body);
     if (error) return res.status(400).send({
@@ -47,6 +47,7 @@ router.post("/package", verify, async (req, res) => {
     }
 
     let events = [];
+    let route = null;
     if (req.body.warehouse) {
         let warehouse = await warehouseModel.findOne({ uuid: req.body.warehouse });
         if (!warehouse) return res.status(400).send({ success: false, error: 'Invalid warehouse'});
@@ -55,6 +56,20 @@ router.post("/package", verify, async (req, res) => {
                 at: Date.now(),
                 type: 'warehouse',
                 warehouse: req.body.warehouse
+            })
+        ];
+    }
+    else if (req.body.route) {
+        route = await routeModel.findOne({ _id: req.body.route });
+        if (!route) return res.status(400).send({ success: false, error: 'Invalid route'});
+        if (route.endedAt) return res.status(400).send({ success: false, error: 'Route ended'});
+        if (route.packages.includes(package._id)) return res.status(400).send({ success: false, error: 'Already in route'});
+
+        events = [
+            new eventModel({
+                at: Date.now(),
+                type: 'route',
+                route: req.body.route
             })
         ];
     }
@@ -102,6 +117,10 @@ router.post("/package", verify, async (req, res) => {
     // Save + catch error
     try {
         await package.save();
+        if (route) {
+            route.packages.push(package._id);
+            await route.save();
+        }
         res.send({ "success": true, data: package });
     } catch (error) {
         res.status(400).send(error);
@@ -136,12 +155,59 @@ router.get("/package/search", async (req, res) => {
 
 })
 
+router.patch("/package/:code", verify, async (req, res) => {
+    var package = await packageModel.findOne({qrCode: req.params.code});
+    if (package == null) return res.status(404).send({"success": false, "error": "Package not found"})
+
+    let route = null;
+    if (req.body.route) {
+        route = await routeModel.findOne({ _id: req.body.route });
+        if (!route) return res.status(400).send({ success: false, error: 'Invalid route'});
+        if (route.endedAt) return res.status(400).send({ success: false, error: 'Route ended'});
+        if (route.packages.includes(package._id)) return res.status(400).send({ success: false, error: 'Already in route'});
+
+        package.events.push(new eventModel({
+            at: Date.now(),
+            type: 'route',
+            route: req.body.route
+        }));
+    }
+    else if (req.body.warehouse) {
+        let warehouse = await warehouseModel.findOne({ uuid: req.body.warehouse });
+        if (!warehouse) return res.status(400).send({ success: false, error: 'Invalid warehouse'});
+
+        package.events.push(new eventModel({
+            at: Date.now(),
+            type: 'warehouse',
+            route: req.body.warehouse
+        }));
+    }
+    else if (req.body.delivered) {
+        package.events.push(new eventModel({
+            at: Date.now(),
+            type: 'delivered'
+        }));
+    }
+    else return res.status(404).send({"success": false, "error": "Invalid method"})
+
+    await package.save();
+    if (route) {
+        route.packages.push(package._id);
+        await route.save();
+    }
+
+    return res.send({
+        "success": true,
+        "data": package
+    });
+});
+
 router.get("/package/:code", addUser, async (req, res) => {
     // If ther user is authorized, require qr hashes
     if(req.user)
     {
         // Find a package from the request
-        var package = await packageModel.findOne({qrHash: req.params.code});
+        var package = await packageModel.findOne({qrCode: req.params.code});
         if (package == null) return res.status(404).send({"success": false, "error": "Package not found"})
         // Returns the package
         return res.send({
