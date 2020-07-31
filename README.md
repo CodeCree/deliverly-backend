@@ -424,3 +424,6 @@ Gets all routes
     ]
 }
 ```
+
+## GET /routes
+Gets all route info for current user

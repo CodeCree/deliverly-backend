@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const jwt = require("jsonwebtoken");
 const packageModel = require("../models/Package");
 const addressModel = require("../models/Address");
 const warehouseModel = require("../models/Warehouse");
@@ -6,6 +7,7 @@ const verify = require("../functions/verifyToken");
 const customerCodeGen = require("../functions/customerCodeGenerator");
 const geolocate = require("../functions/geolocate");
 const { packageInValidation } = require("../functions/validation");
+const userModel = require("../models/User");
 
 router.post("/package", verify, async (req, res) => {
 
@@ -101,11 +103,41 @@ router.post("/package", verify, async (req, res) => {
     }
 });
 
-router.get("/package/:code", verify, async (req, res) => {
+router.get("/package/:code", async (req, res) => {
 
-    var package = await packageModel.findOne({ code: req.params.code });
-    // Checking if package exists
-    if (package == null) return res.status(400).send({ "success": false, "message": "Package does not exist" })
+    // If ther user is authorized, require qr hashes
+    if(req.header("Authorization")){
+        try {
+            // trys to verify token
+            var verified = jwt.verify(req.header("Authorization"), process.env.TOKEN_SECRET);
+            // finds the user from the token
+            var user = await userModel.find({_id : verified._id})
+            // If the user exists, continue
+            if(user){
+                // Find a package from the request
+                var package = await packageModel.findOne({qrHash: req.params.code});
+                if(package == null) return res.status(404).send({"success": false, "message": "Package not found"})
+                // Returns the package
+                res.send({
+                    "success": true,
+                    "data": package
+                })
+            }
+    
+        } catch (err) {
+            // If jwt cant verify token
+            res.status(400).send({ "success": false, "message": "Invalid token" });
+        }
+
+
+        // If the user isn't authorized (eg, a customer), require code
+    } else { 
+        var package = await packageModel.findOne({ code: req.params.code });
+        // Checking if package exists
+        if (package == null) return res.status(400).send({ "success": false, "message": "Package does not exist" })
+    }
+
+    
 
     package.events.forEach(async event => {
 
