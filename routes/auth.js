@@ -1,12 +1,13 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const verifyOp = require("../functions/verifyTokenOp");
 const UserModel = require("../models/User");
 const { registerValidation } = require("../functions/validation");
 const { loginValidation } = require("../functions/validation");
 const verify = require("../functions/verifyToken");
 
-router.post("/register", async (req, res) => {
+router.post("/register", verifyOp, async (req, res) => {
 
     // Post validation
     const { error } = registerValidation(req.body)
@@ -25,6 +26,8 @@ router.post("/register", async (req, res) => {
 
     // New user model
     const User = new UserModel({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
         email: req.body.email,
         password: hashedPassword,
     });
@@ -79,6 +82,17 @@ router.get("/me", verify, async (req, res) => {
     })
 
 
+
+})
+
+router.get("", verifyOp, async (req, res) => {
+
+    var users = await UserModel.find({operator: false}).select("_id firstName lastName email operator");
+
+    res.send({
+        "success": true,
+        "data": users
+    });
 
 })
 

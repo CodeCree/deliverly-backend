@@ -5,6 +5,7 @@ const routeModel = require("../models/Route");
 const warehouseModel = require("../models/Warehouse");
 const verify = require("../functions/verifyToken");
 const { routeInValidation } = require("../functions/validation");
+const verifyOp = require("../functions/verifyTokenOp");
 
 // Makes a new route
 router.post("/route", verify, async (req, res) => {
@@ -35,6 +36,30 @@ router.post("/route", verify, async (req, res) => {
     } catch (error) {
         res.status(400).send(error);
     }
+
+});
+
+router.get("/routes/all", verifyOp, async (req, res) => {
+
+    var routes = await routeModel.find({});
+    res.send({
+        "success": true,
+        "data": routes
+    })
+
+
+})
+
+router.get("/routes", verify, async (req, res) => {
+
+    var user = jwt.decode(req.header("Authorization"));
+
+    var routes = await routeModel.find({userId: user._id});
+    res.send({
+        "success": true,
+        "data": routes
+    })
+
 
 });
 

@@ -33,15 +33,17 @@ Checks to see if the api is online
 }
 ```
 
-## POST /user/register
+## POST /users/register
 Registers a new user into a database  
-**Auth type required: NONE**
+**Auth type required: AUTH TOKEN OPERATOR ONLY**  
+**Auth location: HEADER "Authorization"**
 ##### Example json body
 ```json
 {
+    "firstName": "John",
+    "lastName": "Doe",
     "email": "test@codecree.co.uk",
-    "password": "password",
-    "terms": true
+    "password": "password"
 }
 ```
 
@@ -61,7 +63,7 @@ In this example, the password doesn't meet the requirement if being at least 8 l
 }
 ```
 
-## POST /user/login
+## POST /users/login
 Logs a user in if the account exists on the database  
 **Auth type required: EMAIL & PASSWORD**  
 **Auth location: JSON BODY**
@@ -92,7 +94,7 @@ In this example, the password is wrong
 }
 ```
 
-## GET /me
+## GET /users/me
 Checks to make sure a user is logged in  
 **Auth type required: AUTH TOKEN ANY**  
 **Auth location: HEADER "Authorization"**
@@ -117,6 +119,37 @@ In this example, the token is invalid
 {
     "success": false,
     "message": "Invalid token"
+}
+```
+
+## GET /users
+Gets a list of all none operator users  
+**Auth type required: AUTH TOKEN OPERATOR ONLY**  
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+`localhost:3000/api/user`
+
+#### Expected reply
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "operator": false,
+            "_id": "5f23f6cbf0e0e028c074588d",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "johndoe@codecree.co.uk"
+        },
+        {
+            "operator": false,
+            "_id": "5f240ad1b058dd2fdb194e30",
+            "firstName": "Romeo",
+            "lastName": "Montague",
+            "email": "romeo@codecree.co.uk"
+        }
+    ]
 }
 ```
 
@@ -385,3 +418,43 @@ In this example, the warehouse does not exist
     "error": "Warehouse does not exist"
 }
 ```
+
+## GET /routes/all
+Gets all routes   
+**Auth type required: AUTH TOKEN OPERATOR ONLY**  
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+`GET localhost:3000/api/routes/all`
+
+#### Expected Reply
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "startedAt": null,
+            "endedAt": null,
+            "_id": "5f2379ad1eebe0cb2f59321a",
+            "userId": "5f22081a2709ed23b83aba2e",
+            "endWarehouse": "d1a0654d-bc5d-44d2-b3f0-d8df10d8d62b",
+            "packages": [],
+            "tracking": [],
+            "__v": 0
+        },
+        {
+            "startedAt": null,
+            "endedAt": null,
+            "_id": "5f23f5fe9ac57ec0e71e4dc0",
+            "userId": "5f22081a2709ed23b83aba2e",
+            "endWarehouse": "269bda92-d98b-4a8c-a1ed-6d5f658831b5",
+            "packages": [],
+            "tracking": [],
+            "__v": 0
+        }
+    ]
+}
+```
+
+## GET /routes
+Gets all route info for current user
