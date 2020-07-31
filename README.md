@@ -35,13 +35,15 @@ Checks to see if the api is online
 
 ## POST /user/register
 Registers a new user into a database  
-**Auth type required: NONE**
+**Auth type required: AUTH TOKEN OPERATOR ONLY**  
+**Auth location: HEADER "Authorization"**
 ##### Example json body
 ```json
 {
+    "firstName": "John",
+    "lastName": "Doe",
     "email": "test@codecree.co.uk",
-    "password": "password",
-    "terms": true
+    "password": "password"
 }
 ```
 
@@ -383,5 +385,42 @@ In this example, the warehouse does not exist
 {
     "success": false,
     "error": "Warehouse does not exist"
+}
+```
+
+## GET /routes/all
+Gets all routes   
+**Auth type required: AUTH TOKEN OPERATOR ONLY**  
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+`GET localhost:3000/api/routes/all`
+
+#### Expected Reply
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "startedAt": null,
+            "endedAt": null,
+            "_id": "5f2379ad1eebe0cb2f59321a",
+            "userId": "5f22081a2709ed23b83aba2e",
+            "endWarehouse": "d1a0654d-bc5d-44d2-b3f0-d8df10d8d62b",
+            "packages": [],
+            "tracking": [],
+            "__v": 0
+        },
+        {
+            "startedAt": null,
+            "endedAt": null,
+            "_id": "5f23f5fe9ac57ec0e71e4dc0",
+            "userId": "5f22081a2709ed23b83aba2e",
+            "endWarehouse": "269bda92-d98b-4a8c-a1ed-6d5f658831b5",
+            "packages": [],
+            "tracking": [],
+            "__v": 0
+        }
+    ]
 }
 ```

@@ -54,7 +54,6 @@ router.post("/warehouse", verifyOp, async (req, res) => {
 router.get("/warehouses", verify, async (req, res) => {
 
     var warehouses = await warehouseModel.find({});
-    console.log(warehouses);
     res.send({
         "success": true,
         "data": warehouses
