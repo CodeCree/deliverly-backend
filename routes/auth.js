@@ -156,7 +156,6 @@ router.put("/:id", verify, verifyOp, async (req, res) => {
     }
 });
 
-
 router.post("/login", async (req, res) => {
 
     // Post validation

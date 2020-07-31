@@ -10,7 +10,7 @@ const packageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    qrHash: {
+    qrCode: {
         // UUID v4 8-4-4-4-12 total of 36 characters
         type: String,
         min: 36,
