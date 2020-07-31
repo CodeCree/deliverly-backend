@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const UserModel = require("../models/User");
 const { registerValidation } = require("../functions/validation");
 const { loginValidation } = require("../functions/validation");
+const verify = require("../functions/verifyToken");
 
 router.post("/register", async (req, res) => {
 
@@ -61,6 +62,23 @@ router.post("/login", async (req, res) => {
 
     // Returns token on successful login
     res.send({ "success": true, "email": user.email, "operator": user.operator, "token": token });
+
+})
+
+router.get("/me", verify, async (req, res) => {
+
+    var token = req.header("Authorization");
+    var decode = jwt.decode(token);
+    var user = await UserModel.findOne({ _id: decode._id });
+    res.send({
+        "success": true,
+        "data": {
+            "email": user.email,
+            "operator": user.operator
+        }
+    })
+
+
 
 })
 

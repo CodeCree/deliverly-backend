@@ -92,6 +92,34 @@ In this example, the password is wrong
 }
 ```
 
+## GET /me
+Checks to make sure a user is logged in  
+**Auth type required: AUTH TOKEN ANY**  
+**Auth location: HEADER "Authorization"**
+
+#### Example request
+`GET localhost:3000/api/user/me`
+
+#### Example reply
+```json
+{
+    "success": true,
+    "data": {
+        "email": "op@codecree.co.uk",
+        "operator": true
+    }
+}
+```
+
+#### Error example
+In this example, the token is invalid
+```json
+{
+    "success": false,
+    "message": "Invalid token"
+}
+```
+
 ## POST /package
 Post a new package to the server  
 **Auth type required: AUTH TOKEN ANY**  

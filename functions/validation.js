@@ -63,6 +63,11 @@ const warehouseInValidation = (data) => {
     return schema.validate(data);
 }
 
+const routeInValidation = (data) => {
+
+}
+
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.packageInValidation = packageInValidation;
