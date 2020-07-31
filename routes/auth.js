@@ -7,7 +7,7 @@ const { registerValidation } = require("../functions/validation");
 const { loginValidation } = require("../functions/validation");
 const verify = require("../functions/verifyToken");
 
-router.post("/register", verifyOp, async (req, res) => {
+router.post("", verifyOp, async (req, res) => {
 
     // Post validation
     const { error } = registerValidation(req.body)
@@ -18,7 +18,7 @@ router.post("/register", verifyOp, async (req, res) => {
 
     // Checking if user is already registered
     const emailExists = await UserModel.findOne({ email: req.body.email });
-    if (emailExists) return res.status(400).send({ "success": false, "message": "Email has already been registered" })
+    if (emailExists) return res.status(400).send({ "success": false, "error": "Email has already been registered" })
 
     // If all other checks are ok.. hash the password
     const salt = await bcrypt.genSalt(10);
@@ -54,17 +54,26 @@ router.post("/login", async (req, res) => {
     // Checking if user is already registered
     const user = await UserModel.findOne({ email: req.body.email });
     //  Change this to a vague message pre staging
-    if (!user) return res.status(400).send({ "success": false, "message": "Email or password is incorrect" })
+    if (!user) return res.status(400).send({ "success": false, "error": "Email or password is incorrect" })
 
     // Checking if password is correct
     const validPass = await bcrypt.compare(req.body.password, user.password);
-    if (!validPass) return res.status(400).send({ "success": false, "message": "Email or password is incorrect" });
+    if (!validPass) return res.status(400).send({ "success": false, "error": "Email or password is incorrect" });
 
     // Create and assign new jsonwebtoken
     const token = jwt.sign({ _id: user._id, operator: user.operator }, process.env.TOKEN_SECRET);
 
     // Returns token on successful login
-    res.send({ "success": true, "email": user.email, "operator": user.operator, "token": token });
+    res.send({
+        "success": true,
+        "data": {
+            "email": user.email,
+            "operator": user.operator,
+            "firstName": user.firstName,
+            "lastName": user.lastName,
+            "token": token
+        }
+    });
 
 })
 
@@ -77,17 +86,16 @@ router.get("/me", verify, async (req, res) => {
         "success": true,
         "data": {
             "email": user.email,
-            "operator": user.operator
+            "operator": user.operator,
+            "firstName": user.firstName,
+            "lastName": user.lastName
         }
     })
-
-
-
 })
 
 router.get("", verifyOp, async (req, res) => {
 
-    var users = await UserModel.find({operator: false}).select("_id firstName lastName email operator");
+    var users = await UserModel.find().select("_id firstName lastName email operator");
 
     res.send({
         "success": true,

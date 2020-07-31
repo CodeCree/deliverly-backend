@@ -32,7 +32,7 @@ router.post("/package", verify, async (req, res) => {
     if (result.status != "OK") {
         return res.status(401).send({
             "success": false,
-            "message": result.error_message
+            "error": result.error_message
         })
     }
 
@@ -47,7 +47,7 @@ router.post("/package", verify, async (req, res) => {
         if (collectResult.status != "OK") {
             return res.status(401).send({
                 "success": false,
-                "message": result.error_message
+                "error": result.error_message
             })
         }
 
@@ -116,7 +116,7 @@ router.get("/package/:code", async (req, res) => {
             if(user){
                 // Find a package from the request
                 var package = await packageModel.findOne({qrHash: req.params.code});
-                if(package == null) return res.status(404).send({"success": false, "message": "Package not found"})
+                if(package == null) return res.status(404).send({"success": false, "error": "Package not found"})
                 // Returns the package
                 res.send({
                     "success": true,
@@ -126,7 +126,7 @@ router.get("/package/:code", async (req, res) => {
     
         } catch (err) {
             // If jwt cant verify token
-            res.status(400).send({ "success": false, "message": "Invalid token" });
+            res.status(400).send({ "success": false, "error": "Invalid token" });
         }
 
 
@@ -134,7 +134,7 @@ router.get("/package/:code", async (req, res) => {
     } else { 
         var package = await packageModel.findOne({ code: req.params.code });
         // Checking if package exists
-        if (package == null) return res.status(400).send({ "success": false, "message": "Package does not exist" })
+        if (package == null) return res.status(400).send({ "success": false, "error": "Package does not exist" })
     }
 
     
@@ -150,7 +150,7 @@ router.get("/package/:code", async (req, res) => {
         if (warehouseResult.status != "OK") {
             return res.status(401).send({
                 "success": false,
-                "message": result.error_message
+                "error": result.error_message
             })
         }
 
