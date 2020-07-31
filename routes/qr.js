@@ -1,7 +1,8 @@
 const router = require("express").Router();
 const { v4: uuidv4 } = require('uuid');
+const verify = require("../functions/verifyToken");
 
-router.get("/qr-code", async (req, res) => {
+router.get("/qr-code", verify, async (req, res) => {
 
     var qrs = [];
     for (i = 0; i < 15; i++) {
