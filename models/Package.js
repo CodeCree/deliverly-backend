@@ -46,6 +46,6 @@ const packageSchema = new mongoose.Schema({
         type: [event],
         required: false
     }
-}, { collection: "Packages" });
+}, { collection: "Packages" }).index({ recipient: 'text', email: 'text' });;
 
 module.exports = mongoose.model("Package", packageSchema);
