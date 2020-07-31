@@ -17,14 +17,6 @@ const packageSchema = new mongoose.Schema({
         max: 36,
         required: false
     },
-    warehouse: {
-        type: String,
-        required: false
-    },
-    route: {
-        type: String,
-        required: false
-    },
     weight: {
         // In grams
         type: Number,

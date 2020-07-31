@@ -8,6 +8,7 @@ const customerCodeGen = require("../functions/customerCodeGenerator");
 const geolocate = require("../functions/geolocate");
 const { packageInValidation } = require("../functions/validation");
 const userModel = require("../models/User");
+const eventModel = require("../models/Event");
 
 router.post("/package", verify, async (req, res) => {
 
@@ -36,6 +37,28 @@ router.post("/package", verify, async (req, res) => {
         })
     }
 
+    if (req.body.qrCode) {
+        if (req.body.qrCode.length != 34) return res.status(400).send({ success: false, error: 'Invalid QR code' });
+        if (!req.body.qrCode.startsWith('de')) return res.status(400).send({ success: false, error: 'Invalid QR code' });
+
+        let existingPackage = await packageModel.findOne({ qrCode: req.body.qrCode });
+        if (existingPackage) return res.status(400).send({ success: false, error: 'QR code is already assigned to a package' });
+    }
+
+    let events = [];
+    if (req.body.warehouse) {
+        let warehouse = await warehouseModel.findOne({ uuid: req.body.warehouse });
+        if (!warehouse) return res.status(400).send({ success: false, error: 'Invalid warehouse'});
+        events = [
+            new eventModel({
+                at: Date.now(),
+                type: 'warehouse',
+                warehouse: req.body.warehouse
+            })
+        ];
+    }
+
+    let collection = undefined;
     // If its a collection
     if (req.body.collect) {
         var collectString = req.body.collect.street + " " + req.body.collect.city + " " + req.body.collect.postcode;
@@ -47,51 +70,38 @@ router.post("/package", verify, async (req, res) => {
                 "error": result.error_message
             })
         }
-
-        // Makes a new package
-        var Package = new packageModel({
-            code: customerCode,
-            warehouse: req.body.warehouse,
-            weight: req.body.weight,
-            recipient: req.body.recipient,
-            email: req.body.email,
-            address: new addressModel({
-                coordinates: coordinates,
-                street: req.body.address.street,
-                city: req.body.address.city,
-                postcode: req.body.address.postcode
-            }),
-            collect: new addressModel({
-                coordinates: collectCoordinates,
-                street: req.body.collect.street,
-                city: req.body.collect.city,
-                postcode: req.body.collect.postcode
-            }),
-            premium: req.body.premium
-        });
-
-    } else {
-        // Makes a new package
-        var Package = new packageModel({
-            code: customerCode,
-            warehouse: req.body.warehouse,
-            weight: req.body.weight,
-            recipient: req.body.recipient,
-            email: req.body.email,
-            address: new addressModel({
-                coordinates: [lat, long],
-                street: req.body.address.street,
-                city: req.body.address.city,
-                postcode: req.body.address.postcode
-            }),
-            premium: req.body.premium
+        
+        collection = new addressModel({
+            coordinates: collectCoordinates,
+            street: req.body.collect.street,
+            city: req.body.collect.city,
+            postcode: req.body.collect.postcode
         });
     }
 
+    // Makes a new package
+    let package = new packageModel({
+        code: customerCode,
+        qrCode: req.body.qrCode,
+        warehouse: req.body.warehouse,
+        weight: req.body.weight,
+        recipient: req.body.recipient,
+        email: req.body.email,
+        address: new addressModel({
+            coordinates: coordinates,
+            street: req.body.address.street,
+            city: req.body.address.city,
+            postcode: req.body.address.postcode
+        }),
+        collect: collection,
+        premium: req.body.premium,
+        events: events
+    });
+
     // Save + catch error
     try {
-        await Package.save();
-        res.send({ "success": true, "customerCode": customerCode, "id": Package._id });
+        await package.save();
+        res.send({ "success": true, data: package });
     } catch (error) {
         res.status(400).send(error);
     }

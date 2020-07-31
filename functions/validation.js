@@ -54,7 +54,8 @@ const packageInValidation = (data) => {
             city: Joi.string().required(),
             postcode: Joi.string().required()
         }),
-        premium: Joi.date()
+        premium: Joi.date(),
+        qrCode: Joi.string()
     });
 
     return schema.validate(data);
