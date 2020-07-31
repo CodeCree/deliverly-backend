@@ -18,7 +18,6 @@ function formatUserJson(user) {
 }
 
 router.post("", verify, verifyOp, async (req, res) => {
-
     // Post validation
     const { error } = userPasswordValidation(req.body)
     if (error) return res.status(400).send({
@@ -54,6 +53,56 @@ router.post("", verify, verifyOp, async (req, res) => {
 
 });
 
+router.get("/me", verify, async (req, res) => {
+    res.send({
+        "success": true,
+        "data": formatUserJson(req.user)
+    });
+});
+
+router.put("/me", verify, async (req, res) => {
+    let user = req.user;
+
+    //Validation
+    if (req.body.password) {
+        const { error } = userPasswordValidation(req.body);
+        if (error) return res.status(400).send({
+            "success": false,
+            "error": error.details[0].message
+        });
+    }
+    else {
+        const { error } = userValidation(req.body);
+        if (error) return res.status(400).send({
+            "success": false,
+            "error": error.details[0].message
+        });
+    }
+
+    //Check email
+    const emailExists = await UserModel.findOne({ email: req.body.email, _id: { $ne: user._id } });
+    if (emailExists) return res.status(400).send({ "success": false, "error": "Email has already been registered" });
+
+    //Password validation
+    if (req.body.password) {
+        const hashedPassword = await bcrypt.hash(req.body.password, await bcrypt.genSalt(10));
+        user.password = hashedPassword;
+    }
+
+    user.firstName = req.body.firstName;
+    user.lastName = req.body.lastName;
+    user.email = req.body.email;
+
+    // Save + catch error
+    try {
+        await user.save();
+        res.send({ "success": true, "data": formatUserJson(user) });
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
+
 //Update a user
 router.put("/:id", verify, verifyOp, async (req, res) => {
     //Check user exists
@@ -78,13 +127,13 @@ router.put("/:id", verify, verifyOp, async (req, res) => {
             "error": error.details[0].message
         });
     }
-    
+
     //Check email
-    const emailExists = await UserModel.findOne({ email: req.body.email, _id: { $ne: user._id }});
+    const emailExists = await UserModel.findOne({ email: req.body.email, _id: { $ne: user._id } });
     if (emailExists) return res.status(400).send({ "success": false, "error": "Email has already been registered" });
 
-    //Check op if same user
-    if (req.user._id === user._id && !req.body.operator) return res.status(400).send({ "success": false, "error": "You cannot demote yourself" });
+    //Check if same user
+    if (req.user._id === user._id) return res.status(400).send({ "success": false, "error": "You cannot edit yourself" });
 
     //Password validation
     if (req.body.password) {
@@ -106,7 +155,6 @@ router.put("/:id", verify, verifyOp, async (req, res) => {
         res.status(400).send(error);
     }
 });
-
 
 router.post("/login", async (req, res) => {
 
@@ -135,13 +183,6 @@ router.post("/login", async (req, res) => {
     res.send({
         "success": true,
         "data": jsonUser
-    });
-});
-
-router.get("/me", verify, async (req, res) => {
-    res.send({
-        "success": true,
-        "data": formatUserJson(req.user)
     });
 });
 

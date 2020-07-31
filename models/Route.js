@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
-const packageSchema = require("./Package");
-var package = packageSchema.schema;
-const breadcrumbSchema = require("./Package");
+const breadcrumbSchema = require("./Breadcrumb");
 var breadcrumb = breadcrumbSchema.schema;
 
 const routeSchema = new mongoose.Schema({
@@ -21,7 +19,7 @@ const routeSchema = new mongoose.Schema({
         requied: true
     },
     packages: {
-        type: [package],
+        type: [String],
         required: false
     },
     "endWarehouse": {

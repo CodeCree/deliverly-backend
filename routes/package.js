@@ -4,13 +4,15 @@ const packageModel = require("../models/Package");
 const addressModel = require("../models/Address");
 const warehouseModel = require("../models/Warehouse");
 const verify = require("../functions/verifyToken");
+const addUser = require("../functions/addUser");
 const customerCodeGen = require("../functions/customerCodeGenerator");
 const geolocate = require("../functions/geolocate");
 const { packageInValidation } = require("../functions/validation");
 const userModel = require("../models/User");
+const eventModel = require("../models/Event");
+const routeModel = require("../models/Route");
 
 router.post("/package", verify, async (req, res) => {
-
     // Making sure there is nothing wring withthe request
     const { error } = packageInValidation(req.body);
     if (error) return res.status(400).send({
@@ -36,6 +38,43 @@ router.post("/package", verify, async (req, res) => {
         })
     }
 
+    if (req.body.qrCode) {
+        if (req.body.qrCode.length != 34) return res.status(400).send({ success: false, error: 'Invalid QR code' });
+        if (!req.body.qrCode.startsWith('de')) return res.status(400).send({ success: false, error: 'Invalid QR code' });
+
+        let existingPackage = await packageModel.findOne({ qrCode: req.body.qrCode });
+        if (existingPackage) return res.status(400).send({ success: false, error: 'QR code is already assigned to a package' });
+    }
+
+    let events = [];
+    let route = null;
+    if (req.body.warehouse) {
+        let warehouse = await warehouseModel.findOne({ uuid: req.body.warehouse });
+        if (!warehouse) return res.status(400).send({ success: false, error: 'Invalid warehouse'});
+        events = [
+            new eventModel({
+                at: Date.now(),
+                type: 'warehouse',
+                warehouse: req.body.warehouse
+            })
+        ];
+    }
+    else if (req.body.route) {
+        route = await routeModel.findOne({ _id: req.body.route });
+        if (!route) return res.status(400).send({ success: false, error: 'Invalid route'});
+        if (route.endedAt) return res.status(400).send({ success: false, error: 'Route ended'});
+        if (route.packages.includes(package._id)) return res.status(400).send({ success: false, error: 'Already in route'});
+
+        events = [
+            new eventModel({
+                at: Date.now(),
+                type: 'route',
+                route: req.body.route
+            })
+        ];
+    }
+
+    let collection = undefined;
     // If its a collection
     if (req.body.collect) {
         var collectString = req.body.collect.street + " " + req.body.collect.city + " " + req.body.collect.postcode;
@@ -47,101 +86,172 @@ router.post("/package", verify, async (req, res) => {
                 "error": result.error_message
             })
         }
-
-        // Makes a new package
-        var Package = new packageModel({
-            code: customerCode,
-            warehouse: req.body.warehouse,
-            weight: req.body.weight,
-            recipient: req.body.recipient,
-            email: req.body.email,
-            address: new addressModel({
-                coordinates: coordinates,
-                street: req.body.address.street,
-                city: req.body.address.city,
-                postcode: req.body.address.postcode
-            }),
-            collect: new addressModel({
-                coordinates: collectCoordinates,
-                street: req.body.collect.street,
-                city: req.body.collect.city,
-                postcode: req.body.collect.postcode
-            }),
-            premium: req.body.premium
-        });
-
-    } else {
-        // Makes a new package
-        var Package = new packageModel({
-            code: customerCode,
-            warehouse: req.body.warehouse,
-            weight: req.body.weight,
-            recipient: req.body.recipient,
-            email: req.body.email,
-            address: new addressModel({
-                coordinates: [lat, long],
-                street: req.body.address.street,
-                city: req.body.address.city,
-                postcode: req.body.address.postcode
-            }),
-            premium: req.body.premium
+        
+        collection = new addressModel({
+            coordinates: collectCoordinates,
+            street: req.body.collect.street,
+            city: req.body.collect.city,
+            postcode: req.body.collect.postcode
         });
     }
 
+    // Makes a new package
+    let package = new packageModel({
+        code: customerCode,
+        qrCode: req.body.qrCode,
+        warehouse: req.body.warehouse,
+        weight: req.body.weight,
+        recipient: req.body.recipient,
+        email: req.body.email,
+        address: new addressModel({
+            coordinates: coordinates,
+            street: req.body.address.street,
+            city: req.body.address.city,
+            postcode: req.body.address.postcode
+        }),
+        collect: collection,
+        premium: req.body.premium,
+        events: events
+    });
+
     // Save + catch error
     try {
-        await Package.save();
-        res.send({ "success": true, "customerCode": customerCode, "id": Package._id });
+        await package.save();
+        if (route) {
+            route.packages.push(package._id);
+            await route.save();
+        }
+        res.send({ "success": true, data: package });
     } catch (error) {
         res.status(400).send(error);
     }
 });
 
-router.get("/package/:code", async (req, res) => {
+router.get("/package/search", async (req, res) => {
+    let query = req.query.query;
+    if (!query) query = '';
+    query = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    // If ther user is authorized, require qr hashes
-    if(req.header("Authorization")){
-        try {
-            // trys to verify token
-            var verified = jwt.verify(req.header("Authorization"), process.env.TOKEN_SECRET);
-            // finds the user from the token
-            var user = await userModel.find({_id : verified._id})
-            // If the user exists, continue
-            if(user){
-                // Find a package from the request
-                var package = await packageModel.findOne({qrHash: req.params.code});
-                if(package == null) return res.status(404).send({"success": false, "error": "Package not found"})
-                // Returns the package
-                res.send({
-                    "success": true,
-                    "data": package
-                })
+    let packages = await packageModel.find({
+        $or: [
+            {recipient: { $regex: new RegExp(query, 'i') }},
+            {email: { $regex: new RegExp(query, 'i') }}
+    ]
+    }).sort({
+        qrCode: 1,
+        _id: -1,
+    }).limit(20);
+
+    res.send({
+        "success": true,
+        "data": packages.map(package => {
+            return {
+                title: package.code,
+                description: `${package.recipient} - ${package.address.street}, ${package.address.city}, ${package.address.postcode}`,
+                price: !package.qrCode && 'No QR code'
             }
-    
-        } catch (err) {
-            // If jwt cant verify token
-            res.status(400).send({ "success": false, "error": "Invalid token" });
-        }
+        })
+    });
 
+})
 
+router.patch("/package/:code", verify, async (req, res) => {
+    var package = await packageModel.findOne({qrCode: req.params.code});
+    if (package == null) return res.status(404).send({"success": false, "error": "Package not found"})
+
+    let route = null;
+    if (req.body.route) {
+        route = await routeModel.findOne({ _id: req.body.route });
+        if (!route) return res.status(400).send({ success: false, error: 'Invalid route'});
+        if (route.endedAt) return res.status(400).send({ success: false, error: 'Route ended'});
+        if (route.packages.includes(package._id)) return res.status(400).send({ success: false, error: 'Already in route'});
+
+        package.events.push(new eventModel({
+            at: Date.now(),
+            type: 'route',
+            route: req.body.route
+        }));
+    }
+    else if (req.body.warehouse) {
+        let warehouse = await warehouseModel.findOne({ uuid: req.body.warehouse });
+        if (!warehouse) return res.status(400).send({ success: false, error: 'Invalid warehouse'});
+
+        package.events.push(new eventModel({
+            at: Date.now(),
+            type: 'warehouse',
+            route: req.body.warehouse
+        }));
+    }
+    else if (req.body.delivered) {
+        package.events.push(new eventModel({
+            at: Date.now(),
+            type: 'delivered'
+        }));
+    }
+    else return res.status(404).send({"success": false, "error": "Invalid method"})
+
+    await package.save();
+    if (route) {
+        route.packages.push(package._id);
+        await route.save();
+    }
+
+    return res.send({
+        "success": true,
+        "data": package
+    });
+});
+
+router.get("/package/:code", addUser, async (req, res) => {
+    // If ther user is authorized, require qr hashes
+    if(req.user)
+    {
+        // Find a package from the request
+        var package = await packageModel.findOne({qrCode: req.params.code});
+        if (package == null) return res.status(404).send({"success": false, "error": "Package not found"})
+        // Returns the package
+        return res.send({
+            "success": true,
+            "data": package
+        })
+        
+    } 
+    else {
         // If the user isn't authorized (eg, a customer), require code
-    } else { 
         var package = await packageModel.findOne({ code: req.params.code });
         // Checking if package exists
         if (package == null) return res.status(400).send({ "success": false, "error": "Package does not exist" })
     }
 
-    
+    let events = [];
 
-    package.events.forEach(async event => {
-
-        if (event.route) return;
-        var warehouse = await warehouseModel.findOne({ uuid: event.warehouse });
-        if (!warehouse) return;
-
-        event.location.lat = warehouse.address.coordinates[0];
-        event.location.long = warehouse.address.cordinates[1];
-    });
+    for (event of package.events) {
+        switch (event.type) {
+            case 'warehouse':
+                var warehouse = await warehouseModel.findOne({ uuid: event.warehouse });
+                events.push({
+                    at: event.at,
+                    type: 'warehouse',
+                    location: warehouse && warehouse.address.coordinates,
+                    title: `Arrived at ${!warehouse ? 'warehouse' : warehouse.name}`
+                });
+                break;
+            case 'route':
+                events.push({
+                    at: event.at,
+                    type: 'route',
+                    title: `In transit`
+                });
+                break;
+            default:
+                events.push({
+                    at: event.at,
+                    type: event.type,
+                    title: 'In transit'
+                });
+                break;
+        }
+    };
 
     res.send({
         "success": true,
@@ -151,10 +261,10 @@ router.get("/package/:code", async (req, res) => {
             recipient: package.recipient,
             email: package.email,
             address: package.address,
-            events: package.events
+            events: events
         }
     });
 
-})
+});
 
 module.exports = router;

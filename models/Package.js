@@ -10,19 +10,11 @@ const packageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    qrHash: {
+    qrCode: {
         // UUID v4 8-4-4-4-12 total of 36 characters
         type: String,
         min: 36,
         max: 36,
-        required: false
-    },
-    warehouse: {
-        type: String,
-        required: false
-    },
-    route: {
-        type: String,
         required: false
     },
     weight: {
@@ -54,6 +46,6 @@ const packageSchema = new mongoose.Schema({
         type: [event],
         required: false
     }
-}, { collection: "Packages" });
+}, { collection: "Packages" }).index({ recipient: 'text', email: 'text' });;
 
 module.exports = mongoose.model("Package", packageSchema);
