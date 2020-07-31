@@ -157,15 +157,35 @@ router.get("/package/:code", addUser, async (req, res) => {
         if (package == null) return res.status(400).send({ "success": false, "error": "Package does not exist" })
     }
 
-    package.events.forEach(async event => {
+    let events = [];
 
-        if (event.route) return;
-        var warehouse = await warehouseModel.findOne({ uuid: event.warehouse });
-        if (!warehouse) return;
-
-        event.location.lat = warehouse.address.coordinates[0];
-        event.location.long = warehouse.address.cordinates[1];
-    });
+    for (event of package.events) {
+        switch (event.type) {
+            case 'warehouse':
+                var warehouse = await warehouseModel.findOne({ uuid: event.warehouse });
+                events.push({
+                    at: event.at,
+                    type: 'warehouse',
+                    location: warehouse && warehouse.address.coordinates,
+                    title: `Arrived at ${!warehouse ? 'warehouse' : warehouse.name}`
+                });
+                break;
+            case 'route':
+                events.push({
+                    at: event.at,
+                    type: 'route',
+                    title: `In transit`
+                });
+                break;
+            default:
+                events.push({
+                    at: event.at,
+                    type: event.type,
+                    title: 'In transit'
+                });
+                break;
+        }
+    };
 
     res.send({
         "success": true,
@@ -175,7 +195,7 @@ router.get("/package/:code", addUser, async (req, res) => {
             recipient: package.recipient,
             email: package.email,
             address: package.address,
-            events: package.events
+            events: events
         }
     });
 
