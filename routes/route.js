@@ -52,10 +52,7 @@ router.get("/routes/all", verify, verifyOp, async (req, res) => {
 })
 
 router.get("/routes", verify, async (req, res) => {
-
-    var user = jwt.decode(req.header("Authorization"));
-
-    var routes = await routeModel.find({userId: user._id});
+    var routes = await routeModel.find({userId: req.user._id});
     res.send({
         "success": true,
         "data": routes
